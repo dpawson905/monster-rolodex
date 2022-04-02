@@ -1,5 +1,4 @@
 import { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
@@ -7,24 +6,43 @@ class App extends Component {
     super();
 
     this.state = {
-      name: 'Darrell',
-      company: 'CFW'
+      monsters: [],
+      searchField: ''
     };
   }
+
+  componentDidMount() {
+    let api = process.env.REACT_APP_API_URL;
+    fetch(api)
+      .then((response) => response.json())
+      .then((users) =>
+        this.setState(() => {
+          return { monsters: users };
+        })
+      );
+  }
+
   render() {
+    const filteredMonsters = this.state.monsters.filter((monster) => {
+      return monster.name.toLowerCase().includes(this.state.searchField);
+    });
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>Hi my name is {this.state.name} and I work at {this.state.company}</p>
-          <button
-            onClick={() => {
-              this.setState({ name: 'Jamie', company: 'Wick3d' });
-            }}
-          >
-            Change Name
-          </button>
-        </header>
+        <input
+          className="search-box"
+          type="search"
+          placeholder="search monsters"
+          onChange={(event) => {
+            const searchField = event.target.value.toLowerCase();
+            
+            this.setState(() => {
+              return { searchField }
+            })
+          }}
+        />
+        {filteredMonsters.map((monster) => {
+          return <h1 key={monster.id}>{monster.name}</h1>;
+        })}
       </div>
     );
   }
